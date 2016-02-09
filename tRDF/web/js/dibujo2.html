@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.link {
+  fill: none;
+  stroke: black;
+  stroke-width: 1.5px;
+}
+
+#seguro {
+  fill: green;
+}
+
+.link.seguro {
+  stroke: green;
+}
+
+.link.indeterminado {
+  stroke-dasharray: 0,2 1;
+}
+
+#inseguro {
+  fill: red;
+}
+
+.link.inseguro {
+  stroke: red;
+}
+
+circle {
+  fill: #91e31c;
+  stroke: #333;
+  stroke-width: 1.5px;
+}
+
+text {
+  font: 10px sans-serif;
+  pointer-events: none;
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+
+</style>
+<head>
+<title>Grafo</title></head>
+<body>
+<script src="d3.min.js"></script>
+<center><h1>Grafo</h1></center>
+<script>
+
+// http://blog.thomsonreuters.com/index.php/mobile-patent-normals-graphic-of-the-day/
+var links = [
+  {source: "Tim Berners-Lee", target: "mc schraefel", type: "indeterminado"},
+  {source: "Tim Berners-Lee", target: "John Klensin", type: "inseguro"},
+  {source: "Tim Berners-Lee", target: "Henrik Nielsen", type: "indeterminado"},
+  {source: "Tim Berners-Lee", target: "Susie Stephens", type: "indeterminado"},
+  {source: "Tim Berners-Lee", target: "John Markoff", type: "seguro"},
+  {source: "Tim Berners-Lee", target: "Nicholas Gibbins", type: "indeterminado"},
+  {source: "Tim Berners-Lee", target: "Daniel Krech", type: "indeterminado"},
+  {source: "Tim Berners-Lee", target: "Dean Jackson", type: "normal"},
+  {source: "Tim Berners-Lee", target: "Norman Walsh", type: "indeterminado"},
+  {source: "Tim Berners-Lee", target: "Les Carr", type: "indeterminado"},
+  {source: "Tim Berners-Lee", target: "Shinnyih Huang", type: "normal"},
+  {source: "Tim Berners-Lee", target: "Philippe Le Hégaret", type: "indeterminado"},
+  {source: "Tim Berners-Lee", target: "Oshani Seneviratne", type: "indeterminado"},
+  {source: "Tim Berners-Lee", target: "Joe Lambda", type: "seguro"},
+  {source: "Tim Berners-Lee", target: "Lalana Kagal", type: "indeterminado"},
+  {source: "Tim Berners-Lee", target: "Karl Dubost", type: "normal"},
+  {source: "Tim Berners-Lee", target: "Bijan Parsia", type: "normal"},
+  {source: "Tim Berners-Lee", target: "John Seely Brown", type: "seguro"},
+  {source: "Tim Berners-Lee", target: "Robert Hoffmann", type: "normal"},
+  {source: "Tim Berners-Lee", target: "Henry Story", type: "normal"},
+  {source: "Tim Berners-Lee", target: "Kjetil Kjernsmo", type: "seguro"},
+  {source: "Tim Berners-Lee", target: "Håkon Wium Lie", type: "inseguro"},
+  {source: "Tim Berners-Lee", target: "Libby Miller", type: "inseguro"},
+  {source: "Tim Berners-Lee", target: "Eric Miller", type: "normal"},
+  {source: "Tim Berners-Lee", target: "Charles McCathieNevile", type: "seguro"},
+  {source: "Tim Berners-Lee", target: "Ira Fuchs", type: "normal"},
+  {source: "Tim Berners-Lee", target: "Aaron Swartz", type: "seguro"},
+  {source: "Tim Berners-Lee", target: "Ian Jacobs", type: "indeterminado"},
+  {source: "Tim Berners-Lee", target: "Dave Beckett", type: "seguro"},
+  {source: "Tim Berners-Lee", target: "Yolanda Gill", type: "normal"},
+  {source: "Tim Berners-Lee", target: "Tom Ilube", type: "normal"},
+  {source: "Tim Berners-Lee", target: "Nigel Shadbolt", type: "seguro"},
+  {source: "Tim Berners-Lee", target: "Jim Hendler", type: "seguro"},
+  {source: "Tim Berners-Lee", target: "Edd Dumbill", type: "indeterminado"},
+  {source: "Tim Berners-Lee", target: "Dan Connolly", type: "normal"},
+  {source: "Tim Berners-Lee", target: "Christoph Bussler", type: "inseguro"},
+  {source: "Tim Berners-Lee", target: "Danny Ayers", type: "seguro"},
+  {source: "Tim Berners-Lee", target: "John Gage", type: "inseguro"},
+  {source: "Tim Berners-Lee", target: "Ivan Herman", type: "normal"},
+  {source: "Tim Berners-Lee", target: "Sean Palmer", type: "inseguro"},
+  {source: "Tim Berners-Lee", target: "Lee Feigenbaum", type: "indeterminado"},
+  {source: "Tim Berners-Lee", target: "World Wide Web Consortium", type: "inseguro"},
+  {source: "Tim Berners-Lee", target: "Peter Szolovits", type: "seguro"},
+  {source: "Tim Berners-Lee", target: "Ora Lassila", type: "inseguro"},
+  {source: "Tim Berners-Lee", target: "Daniel J Weitzner", type: "normal"},
+  {source: "Tim Berners-Lee", target: "Jennifer Golbeck", type: "indeterminado"},
+  {source: "Tim Berners-Lee", target: "Kingsley Idehen", type: "indeterminado"},
+  {source: "Tim Berners-Lee", target: "Tim Bray", type: "seguro"},
+  {source: "Tim Berners-Lee", target: "Wendy Hall", type: "seguro"},
+  {source: "Tim Berners-Lee", target: "Coralie Mercier", type: "inseguro"},
+  {source: "Tim Berners-Lee", target: "Simon J. Hernandez", type: "inseguro"},
+  {source: "Tim Berners-Lee", target: "Amy van der Hiel", type: "indeterminado"},
+];
+
+var nodes = {};
+
+// Compute the distinct nodes from the links.
+links.forEach(function(link) {
+  link.source = nodes[link.source] || (nodes[link.source] = {name: link.source});
+  link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
+});
+
+var width = 960,
+    height = 500;
+
+var force = d3.layout.force()
+    .nodes(d3.values(nodes))
+    .links(links)
+    .size([width, height])
+    .linkDistance(120)
+    .charge(-300)
+    .on("tick", tick)
+    .start();
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+// Per-type markers, as they don't inherit styles.
+svg.append("defs").selectAll("marker")
+    .data(["normal", "seguro", "indeterminado", "inseguro"])
+  .enter().append("marker")
+    .attr("id", function(d) { return d; })
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 30)
+    .attr("refY", -3)
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("orient", "auto")
+  .append("path")
+    .attr("d", "M0,-5L10,0L0,5");
+
+var path = svg.append("g").selectAll("path")
+    .data(force.links())
+  .enter().append("path")
+    .attr("class", function(d) { return "link " + d.type; })
+    .attr("marker-end", function(d) { return "url(#" + d.type + ")"; });
+
+var circle = svg.append("g").selectAll("circle")
+    .data(force.nodes())
+  .enter().append("circle")
+    .attr("r", 18)
+    .call(force.drag);
+
+var text = svg.append("g").selectAll("text")
+    .data(force.nodes())
+  .enter().append("text")
+    .attr("x", 8)
+    .attr("y", ".31em")
+    .text(function(d) { return d.name; });
+
+// Use elliptical arc path segments to doubly-encode directionality.
+function tick() {
+  path.attr("d", linkArc);
+  circle.attr("transform", transform);
+  text.attr("transform", transform);
+}
+
+function linkArc(d) {
+  var dx = d.target.x - d.source.x,
+      dy = d.target.y - d.source.y,
+      dr = Math.sqrt(dx * dx + dy * dy);
+  return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+}
+
+function transform(d) {
+  return "translate(" + d.x + "," + d.y + ")";
+}
+
+</script>
+</body>

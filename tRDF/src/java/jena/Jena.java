@@ -38,8 +38,7 @@ public class Jena {
                 }
                 return array;
             } finally {
-                qexec.close();
-                return null;
+                qexec.close();                
             }            
     }       
 }

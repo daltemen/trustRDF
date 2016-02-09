@@ -11,10 +11,23 @@ and open the template in the editor.
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <div>Aqui se visualiza la consulta sparql</div>
-        <form name="SparqServlet" action="SparqServlet" method="POST">
-            <input type="submit" value="Consultar" name="Consulta" />
-        </form>
         
+        <!--<form name="SparqServlet" action="SparqServlet" method="POST">
+            <input type="submit" value="Consultar" name="Consulta" />
+        </form>-->
+    <center><h1>Bienvenido</h1></center>    
+    <center><form action="SparqServlet" method="POST">
+            <p>Para registrar un nuevo RDF</p>
+            <input type="submit" value="Registrar" name="registrar"/>
+            <br>
+            <p>Para seleccionar un RDF</p>
+            <input type="submit" value="Seleccionar" name="seleccionar"/>
+            <!--<input type="radio" name="opcion" value="data1">Data 1
+            <br>
+            <input type="radio" name="opcion" value="data2">Data 2
+            <br>
+            <input type="submit" value="Siguiente">-->
+        </form>
+    </center>
     </body>
 </html>
